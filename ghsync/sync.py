@@ -3,7 +3,7 @@ import subprocess
 import os
 
 
-def get_all_github_repos(username, pat):
+def get_all_github_repos(pat):
     """
     Get all public and private repository names of a GitHub user using a Personal Access Token (PAT).
 
@@ -36,18 +36,35 @@ def get_all_github_repos(username, pat):
     return repos
 
 
-def sync(username, pat):
-    backup_dir = "backup"
-    repos = get_all_github_repos(username, pat)
-    cloned_repos = os.listdir(backup_dir)
+def sync(backup_dir, username, pat):
+    logs = []
+    repos = get_all_github_repos(pat)
+
+    if os.path.exists(backup_dir) and os.path.isdir(backup_dir):
+        cloned_repos = os.listdir(backup_dir)
+    else:
+        cloned_repos = []
+
+    repos_cloned = []
+    repos_failed_to_clone = []
 
     for repo in repos:
         if repo in cloned_repos:
             continue
 
-        subprocess.run(
-            "git",
-            "clone",
-            f"https://{username}:{pat}@github.com/{username}/{repo}.git",
-            "backup",
-        )
+        try:
+            subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    f"https://{username}:{pat}@github.com/{username}/{repo}.git",
+                    f"{backup_dir}/{repo}/.git",
+                ],
+                check=True,
+            )
+        except:
+            repos_failed_to_clone.append(repo)
+        else:
+            repos_cloned.append(repo)
+
+    return repos_cloned, repos_failed_to_clone
