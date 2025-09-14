@@ -68,3 +68,21 @@ def sync(backup_dir, username, pat):
             repos_cloned.append(repo)
 
     return repos_cloned, repos_failed_to_clone
+
+
+def update(backup_dir):
+    updated = []
+    failed_to_update = []
+
+    for repo in os.listdir(backup_dir):
+        repo_path = os.path.join(backup_dir, repo)
+
+        try:
+            print(f"Updating {repo}...")
+            subprocess.run(["git", "fetch"], cwd=repo_path, check=True)
+        except:
+            failed_to_update.append(repo)
+        else:
+            updated.append(repo)
+
+    return updated, failed_to_update
