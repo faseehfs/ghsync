@@ -1,5 +1,6 @@
 from ghsync import main
 from ghsync import sync
+from ghsync import update
 
 import sys
 
@@ -9,7 +10,7 @@ if __name__ == "__main__":
     cloned, failed_to_clone = sync.sync(
         config["backup_path"], config["username"], config["pat"]
     )
-    updated, failed_to_update = sync.update(config["backup_path"])
+    updated, failed_to_update = update.update(config["backup_path"])
 
     if not failed_to_clone and not failed_to_update:
         print("Syncing completed successfully.")

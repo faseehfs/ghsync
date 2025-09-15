@@ -8,5 +8,5 @@ Simply run the application, and it will first walk you through the configuration
 
 ## Tips
 
--   To reconfigure the program, just delete `config.json`. The next time you run the app, it will prompt you to reconfigure.
+-   To reconfigure the program, delete `config.json`. The next time you run the app, it will prompt you to reconfigure.
 -   You don’t have to configure the app through the app itself—you can also edit `config.json` manually using a text editor.
