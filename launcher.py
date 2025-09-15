@@ -1,6 +1,8 @@
 from ghsync import main
 from ghsync import sync
 
+import sys
+
 if __name__ == "__main__":
     config = main.config()
 
@@ -17,3 +19,4 @@ if __name__ == "__main__":
             print(f"ERROR: failed to clone {', '.join(failed_to_clone)}.")
         if failed_to_update:
             print(f"ERROR: failed to update {', '.join(failed_to_update)}.")
+        sys.exit(1)
