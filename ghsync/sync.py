@@ -37,7 +37,6 @@ def get_all_github_repos(pat):
 
 
 def sync(backup_dir, username, pat):
-    logs = []
     repos = get_all_github_repos(pat)
 
     if os.path.exists(backup_dir) and os.path.isdir(backup_dir):
@@ -45,27 +44,38 @@ def sync(backup_dir, username, pat):
     else:
         cloned_repos = []
 
+    repos_to_clone = []
+    for repo in repos:
+        if repo not in cloned_repos:
+            repos_to_clone.append(repo)
+
+    print(f"Found {len(repos_to_clone)} new repositories: {repos_to_clone}")
+
     repos_cloned = []
     repos_failed_to_clone = []
 
-    for repo in repos:
-        if repo in cloned_repos:
-            continue
-
-        try:
-            subprocess.run(
-                [
-                    "git",
-                    "clone",
-                    f"https://{username}:{pat}@github.com/{username}/{repo}.git",
-                    f"{backup_dir}/{repo}/.git",
-                ],
-                check=True,
-            )
-        except:
-            repos_failed_to_clone.append(repo)
-        else:
-            repos_cloned.append(repo)
+    if repos_to_clone:
+        for i, repo in enumerate(repos_to_clone):
+            try:
+                print("\r\033[K", end="")
+                print(f"Cloning repo {i + 1}/{len(repos_to_clone)}: {repo}", end="")
+                subprocess.run(
+                    [
+                        "git",
+                        "clone",
+                        f"https://{username}:{pat}@github.com/{username}/{repo}.git",
+                        f"{backup_dir}/{repo}",
+                    ],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except:
+                print(f"\nFailed to clone '{repo}'.")
+                repos_failed_to_clone.append(repo)
+            else:
+                repos_cloned.append(repo)
+        print()
 
     return repos_cloned, repos_failed_to_clone
 
@@ -73,16 +83,26 @@ def sync(backup_dir, username, pat):
 def update(backup_dir):
     updated = []
     failed_to_update = []
+    to_update = os.listdir(backup_dir)
 
-    for repo in os.listdir(backup_dir):
+    for i, repo in enumerate(to_update):
         repo_path = os.path.join(backup_dir, repo)
 
         try:
-            print(f"Updating {repo}...")
-            subprocess.run(["git", "fetch"], cwd=repo_path, check=True)
+            print("\r\033[K", end="")
+            print(f"Updating repo {i + 1}/{len(to_update)}: {repo}", end="")
+            subprocess.run(
+                ["git", "pull"],
+                cwd=repo_path,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         except:
+            print(f"\nFailed to update '{repo}'.")
             failed_to_update.append(repo)
         else:
             updated.append(repo)
 
+    print()
     return updated, failed_to_update
