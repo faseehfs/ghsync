@@ -5,41 +5,6 @@ import sys
 from . import utils
 
 
-def update(backup_dir):
-    updated = []
-    failed_to_update = []
-    to_update = os.listdir(backup_dir)
-
-    for i, repo in enumerate(to_update):
-        repo_path = os.path.join(backup_dir, repo)
-
-        try:
-            click.echo("\r\033[K", nl=False)
-            click.echo(f"Updating repo {i + 1}/{len(to_update)}: {repo}", nl=False)
-
-            subprocess.run(
-                ["git", "fetch"],
-                cwd=repo_path,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            subprocess.run(
-                ["git", "lfs", "fetch", "--all"],
-                cwd=repo_path,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except:
-            failed_to_update.append(repo)
-        else:
-            updated.append(repo)
-
-    click.echo()
-    return updated, failed_to_update
-
-
 def download_repos(backup_dir, username, pat):
     """
     Downloads the repositories that have not been downloaded yet.
@@ -75,7 +40,8 @@ def download_repos(backup_dir, username, pat):
             try:
                 click.echo("\r\033[K", nl=False)
                 click.echo(
-                    f"Downloading repo {i + 1}/{len(repos_to_clone)}: {repo}", nl=False
+                    f"Downloading repos ({i + 1}/{len(repos_to_clone)}): {repo}",
+                    nl=False,
                 )
                 subprocess.run(
                     [
@@ -97,6 +63,41 @@ def download_repos(backup_dir, username, pat):
         click.echo()
 
     return repos_cloned, repos_failed_to_clone
+
+
+def update(backup_dir):
+    updated = []
+    failed_to_update = []
+    to_update = os.listdir(backup_dir)
+
+    for i, repo in enumerate(to_update):
+        repo_path = os.path.join(backup_dir, repo)
+
+        try:
+            click.echo("\r\033[K", nl=False)
+            click.echo(f"Updating repos ({i + 1}/{len(to_update)}): {repo}", nl=False)
+
+            subprocess.run(
+                ["git", "fetch"],
+                cwd=repo_path,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            subprocess.run(
+                ["git", "lfs", "fetch", "--all"],
+                cwd=repo_path,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except:
+            failed_to_update.append(repo)
+        else:
+            updated.append(repo)
+
+    click.echo()
+    return updated, failed_to_update
 
 
 def sync(backup_dir, username, pat):

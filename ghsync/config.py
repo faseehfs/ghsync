@@ -6,13 +6,11 @@ import sys
 CONFIG_FILE = "config.json"
 
 
-def configure():
+def config():
     """
     Walks though the configuration process and stores the configuration in config.json which can be obtained later by calling config.get().
     """
-    click.echo(
-        "Welcome. Let's configure the application. You only have to do it once!\n"
-    )
+    click.echo("Welcome. Let's configure the application. You only have to do it once!")
 
     configuration = {
         "username": input("Enter your GitHub username: "),
@@ -23,6 +21,7 @@ def configure():
     }
     with open(CONFIG_FILE, "w") as f:
         json.dump(configuration, f)
+    click.echo("Configuration complete.")
 
 
 def get():
