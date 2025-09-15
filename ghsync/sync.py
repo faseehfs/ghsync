@@ -49,7 +49,7 @@ def sync(backup_dir, username, pat):
         if repo not in cloned_repos:
             repos_to_clone.append(repo)
 
-    print(f"Found {len(repos_to_clone)} new repositories: {repos_to_clone}")
+    print(f"New repositories found ({len(repos_to_clone)}): {repos_to_clone}")
 
     repos_cloned = []
     repos_failed_to_clone = []
