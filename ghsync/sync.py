@@ -58,13 +58,14 @@ def sync(backup_dir, username, pat):
         for i, repo in enumerate(repos_to_clone):
             try:
                 print("\r\033[K", end="")
-                print(f"Cloning repo {i + 1}/{len(repos_to_clone)}: {repo}", end="")
+                print(f"Downloading repo {i + 1}/{len(repos_to_clone)}: {repo}", end="")
                 subprocess.run(
                     [
                         "git",
                         "clone",
+                        "--mirror",
                         f"https://{username}:{pat}@github.com/{username}/{repo}.git",
-                        f"{backup_dir}/{repo}",
+                        f"{backup_dir}/{repo}/.git",
                     ],
                     check=True,
                     stdout=subprocess.DEVNULL,
@@ -91,8 +92,16 @@ def update(backup_dir):
         try:
             print("\r\033[K", end="")
             print(f"Updating repo {i + 1}/{len(to_update)}: {repo}", end="")
+
             subprocess.run(
-                ["git", "pull"],
+                ["git", "fetch"],
+                cwd=repo_path,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            subprocess.run(
+                ["git", "lfs", "fetch", "--all"],
                 cwd=repo_path,
                 check=True,
                 stdout=subprocess.DEVNULL,
