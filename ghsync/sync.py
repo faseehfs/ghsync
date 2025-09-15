@@ -49,10 +49,18 @@ def sync(backup_dir, username, pat):
         if repo not in cloned_repos:
             repos_to_clone.append(repo)
 
-    print(f"New repositories found ({len(repos_to_clone)}): {repos_to_clone}")
-
     repos_cloned = []
     repos_failed_to_clone = []
+
+    if len(repos_to_clone) > 1:
+        print(f"Found {len(repos_to_clone)} new repositories: ")
+        for repo in repos_to_clone:
+            print(" ", repo)
+    elif len(repos_to_clone) == 1:
+        print(f"Found 1 new repository: {repos_to_clone[0]}")
+    else:
+        print("No new repositories has been found.")
+        return repos_cloned, repos_failed_to_clone
 
     if repos_to_clone:
         for i, repo in enumerate(repos_to_clone):
@@ -72,7 +80,6 @@ def sync(backup_dir, username, pat):
                     stderr=subprocess.DEVNULL,
                 )
             except:
-                print(f"\nFailed to clone '{repo}'.")
                 repos_failed_to_clone.append(repo)
             else:
                 repos_cloned.append(repo)
@@ -108,7 +115,6 @@ def update(backup_dir):
                 stderr=subprocess.DEVNULL,
             )
         except:
-            print(f"\nFailed to update '{repo}'.")
             failed_to_update.append(repo)
         else:
             updated.append(repo)
