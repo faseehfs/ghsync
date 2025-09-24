@@ -1,7 +1,6 @@
 import click
 import subprocess
 import os
-import sys
 from . import utils
 
 

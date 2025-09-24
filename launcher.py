@@ -1,5 +1,4 @@
 import click
-import sys
 
 from ghsync import config
 from ghsync.sync import sync
