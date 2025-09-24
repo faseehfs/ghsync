@@ -15,6 +15,7 @@ def backup(dir):
         click.echo(f"'{dir}' is not a directory.")
         return
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    shutil.make_archive(dir + "-" + timestamp, "zip", dir)
+    timestamp = datetime.now().strftime("-%Y-%m-%d_%H-%M-%S")
+    shutil.make_archive(dir + timestamp, "zip", dir)
     shutil.rmtree(dir)
+    click.echo("Backup has been created successfully.")
