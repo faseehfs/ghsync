@@ -3,6 +3,8 @@ import os
 import json
 import sys
 
+from getpass import getpass
+
 CONFIG_FILE = "config.json"
 
 
@@ -14,13 +16,13 @@ def config():
 
     configuration = {
         "username": input("Enter your GitHub username: "),
-        "pat": input("Enter your PAT: "),
+        "pat": getpass("Enter your PAT (it will be hidden as you type for security): "),
         "backup_path": input(
             "Enter the path to your backup folder (relative/absolute): "
         ),
     }
     with open(CONFIG_FILE, "w") as f:
-        json.dump(configuration, f)
+        json.dump(configuration, f, indent=4)
     click.echo("Configuration complete.")
 
 

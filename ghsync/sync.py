@@ -40,7 +40,7 @@ def download_repos(backup_dir, username, pat=""):
     elif len(repos_to_clone) == 1:
         click.echo(f"Found 1 new repository: {repos_to_clone[0]}")
     else:
-        click.echo("No new repositories has been found.")
+        click.echo("No new repository has been found.")
         return repos_cloned, repos_failed_to_clone
 
     if repos_to_clone:
