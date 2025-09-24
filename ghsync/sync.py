@@ -5,12 +5,21 @@ import sys
 from . import utils
 
 
-def download_repos(backup_dir, username, pat):
+def download_repos(backup_dir, username, pat=""):
     """
     Downloads the repositories that have not been downloaded yet.
     """
 
-    repos = utils.get_all_github_repos(pat)
+    if pat:
+        repos = utils.get_all_github_repos(pat)
+    else:
+        click.echo(
+            click.style(
+                "WARNING: PAT was not found. So, only your public repos will be synced.",
+                fg="yellow",
+            )
+        )
+        repos = utils.get_public_github_repos(username)
 
     if os.path.exists(backup_dir) and os.path.isdir(backup_dir):
         cloned_repos = os.listdir(backup_dir)
@@ -56,7 +65,7 @@ def download_repos(backup_dir, username, pat):
                     stderr=subprocess.DEVNULL,
                 )
             except subprocess.CalledProcessError:
-                print("calledprocesserror")
+                click.echo("CalledProcessError")
                 repos_failed_to_clone.append(repo)
             else:
                 repos_cloned.append(repo)
@@ -104,12 +113,18 @@ def sync(backup_dir, username, pat):
     cloned, failed_to_clone = download_repos(backup_dir, username, pat)
     updated, failed_to_update = update(backup_dir)
 
-    if not failed_to_clone and not failed_to_update:
-        click.echo("Syncing completed successfully.")
-    else:
+    if any((failed_to_clone, failed_to_update)):
         click.echo("Syncing completed with errors:")
+        error_messages = []
         if failed_to_clone:
-            click.echo(f"ERROR: failed to clone {', '.join(failed_to_clone)}.")
+            error_messages.append(
+                f"ERROR: failed to clone {', '.join(failed_to_clone)}."
+            )
         if failed_to_update:
-            click.echo(f"ERROR: failed to update {', '.join(failed_to_update)}.")
-        sys.exit(1)
+            error_messages.append(
+                f"ERROR: failed to update {', '.join(failed_to_update)}."
+            )
+
+        click.echo(click.style("\n".join(error_messages), fg="red"))
+    else:
+        click.echo("Syncing completed successfully.")

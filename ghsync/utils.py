@@ -32,3 +32,32 @@ def get_all_github_repos(pat):
         params["page"] += 1
 
     return repos
+
+
+def get_public_github_repos(username):
+    """
+    Fetch all public repository names for a given GitHub username.
+
+    Args:
+        username (str): GitHub username.
+
+    Returns:
+        list: List of repository names.
+    """
+    url = f"https://api.github.com/users/{username}/repos"
+    repos = []
+    page = 1
+
+    while True:
+        response = requests.get(url, params={"per_page": 100, "page": page})
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch repos: {response.status_code}")
+
+        data = response.json()
+        if not data:
+            break
+
+        repos.extend(repo["name"] for repo in data)
+        page += 1
+
+    return repos
