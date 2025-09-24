@@ -1,4 +1,5 @@
 import requests
+import sys
 
 
 def get_all_github_repos(pat):
@@ -22,7 +23,7 @@ def get_all_github_repos(pat):
     while True:
         response = requests.get(url, headers=headers, params=params)
         if response.status_code != 200:
-            raise Exception(f"Error: {response.status_code} - {response.text}")
+            raise Exception(f"Failed to fetch repos: {response.status_code}")
 
         data = response.json()
         if not data:
