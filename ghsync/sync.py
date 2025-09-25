@@ -73,7 +73,7 @@ def download_repos(backup_dir, username, pat=""):
     return repos_cloned, repos_failed_to_clone
 
 
-def update(backup_dir):
+def update(backup_dir, lfs=False):
     updated = []
     failed_to_update = []
     to_update = os.listdir(backup_dir)
@@ -92,13 +92,14 @@ def update(backup_dir):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            subprocess.run(
-                ["git", "lfs", "fetch", "--all"],
-                cwd=repo_path,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+            if lfs:
+                subprocess.run(
+                    ["git", "lfs", "fetch", "--all"],
+                    cwd=repo_path,
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
         except:
             failed_to_update.append(repo)
         else:
@@ -108,9 +109,17 @@ def update(backup_dir):
     return updated, failed_to_update
 
 
-def sync(backup_dir, username, pat):
+def sync(backup_dir, username, pat, lfs=False):
+    if not lfs:
+        click.echo(
+            click.style(
+                "WARNING: LFS is not turned on. If you want to fetch LFS files, please turn it on from `config.json`.",
+                fg="yellow",
+            )
+        )
+
     cloned, failed_to_clone = download_repos(backup_dir, username, pat)
-    updated, failed_to_update = update(backup_dir)
+    updated, failed_to_update = update(backup_dir, lfs)
 
     if any((failed_to_clone, failed_to_update)):
         click.echo("Syncing completed with errors:")

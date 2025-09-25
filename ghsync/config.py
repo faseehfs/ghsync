@@ -16,10 +16,14 @@ def config():
 
     configuration = {
         "username": input("Enter your GitHub username: "),
-        "pat": getpass("Enter your PAT (it will be hidden as you type for security): "),
+        "pat": getpass("Enter your PAT or press Enter to skip this step: "),
         "backup_path": input(
             "Enter the path to your backup folder (relative/absolute): "
         ),
+        "lfs": input("Do you want to fetch LFS files when you sync? (y/N): ")
+        .strip()
+        .lower()
+        == "y",
     }
     with open(CONFIG_FILE, "w") as f:
         json.dump(configuration, f, indent=4)
