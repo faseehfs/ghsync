@@ -2,8 +2,22 @@
 
 A simple, user-friendly Python CLI application for syncing your GitHub repositories to your local computer.
 
-## Commands
+## Usage
 
--   `config`: Guides you through the configuration process and saves the settings to `config.json`. Run this again if you need to reconfigure the application.
--   `sync`: Downloads any repositories that haven’t been downloaded yet (including LFS files) and updates existing ones in the sync directory if there are changes. Run this periodically to keep your local copy up to date.
--   `backup`: Compresses your backup directory into a timestamped `.zip` file and deletes the original folder. The next time you run `sync`, repositories are re-downloaded, preventing local corruption.
+1. Run `config`
+
+    - Walks you through the configuration process.
+    - Saves settings to `config.json`.
+    - To edit later, either update `config.json` manually or re-run `config` to reset everything.
+
+2. Run `sync`
+    - Clones all repositories into your configured folder.
+    - Handles LFS files if configured.
+    - On subsequent runs:
+        - Downloads new repositories.
+        - Updates existing repositories.
+
+## Extra Commands
+
+-   `backup`  
+    Compresses your backup directory into a timestamped `.zip` file and deletes the original folder. Next time you run `sync`, repositories are re-downloaded.
