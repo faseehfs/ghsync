@@ -1,28 +1,47 @@
 # GHSync
 
-A simple, user-friendly Python CLI application for syncing your GitHub repositories to your local computer.
+A straightforward Python CLI tool to sync your GitHub repositories to your local machine.
 
 ## Usage
 
-### Step 1: Run `config`
+### 1. Configure
 
-This command walks you through the configuration process and saves the settings to `config.json` in the current directory. The available configurations are:
+Run:
+
+```bash
+ghsync config
+```
+
+This guides you through setup and saves your settings in `config.json` in the current directory:
 
 ```json
 {
-    "username": "faseehfs", // mandatory
-    "pat": "", // your GitHub Personal Access Token
-    "backup_path": "backup", // relative or absolute path
-    "lfs": false // fetch LFS files
+    "username": "faseehfs",
+    "pat": "",
+    "backup_path": "backup",
+    "lfs": false
 }
 ```
 
-### Step 2: Run `sync`
+-   `username`: Your GitHub username.
+-   `pat`: Personal Access Token (optional, needed only if private repos require it).
+-   `backup_path`: Folder for storing your repositories (default: `backup`).
+-   `lfs`: Set to `true` if you want Git LFS files; default is `false`.
 
-On the first run, this command downloads all your repositories to the `backup_path` specified in the config file. On subsequent runs, it checks for new repositories on GitHub and downloads them if not present locally, while updating existing ones.  
-**Run this periodically to keep your local copy up to date.**
+### 2. Sync Repositories
 
-## Extra Commands
+Run:
+
+```bash
+ghsync sync
+```
+
+-   First run: Downloads all your repositories to `backup_path`.
+-   Subsequent runs: Updates existing repos and fetches any new ones.
+
+**Tip:** Run periodically to keep your local copy current.
+
+## Additional Commands
 
 -   `backup`  
-    Compresses your backup directory into a timestamped `.zip` file and deletes the original folder. The next time you run `sync`, repositories are re-downloaded. It is recommended to run this command occasionally to keep your repos safe.
+    Compresses your backup folder into a timestamped `.zip` and deletes the original. Next time you run `sync`, repos are re-downloaded. Useful for safe storage.
