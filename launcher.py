@@ -32,4 +32,7 @@ def backup_dir():
 
 if __name__ == "__main__":
     configuration = config.get()
-    cli()
+    if configuration is None:
+        config.config()
+    else:
+        cli()
