@@ -4,7 +4,7 @@ import os
 from . import utils
 
 
-def download_repos(backup_dir, username, pat=""):
+def download_new_repos(backup_dir, username, pat=""):
     """
     Downloads the repositories that have not been downloaded yet.
     """
@@ -20,37 +20,14 @@ def download_repos(backup_dir, username, pat=""):
         )
         repos = utils.get_public_github_repos(username)
 
-    if os.path.exists(backup_dir) and os.path.isdir(backup_dir):
-        cloned_repos = os.listdir(backup_dir)
-    else:
-        cloned_repos = []
+    cloned_repos = os.listdir(backup_dir) if os.path.isdir(backup_dir) else []
+    repos_to_clone = [repo for repo in repos if repo not in cloned_repos]
 
-    repos_to_clone = []
-    for repo in repos:
-        if repo not in cloned_repos:
-            repos_to_clone.append(repo)
-
-    repos_cloned = []
-    repos_failed_to_clone = []
-
-    if len(repos_to_clone) > 1:
-        click.echo(f"Found {len(repos_to_clone)} new repositories: ")
-        for repo in repos_to_clone:
-            click.echo(f"    {repo}")
-    elif len(repos_to_clone) == 1:
-        click.echo(f"Found 1 new repository: {repos_to_clone[0]}")
-    else:
-        click.echo("No new repository has been found.")
-        return repos_cloned, repos_failed_to_clone
+    repos_cloned, repos_failed_to_clone = [], []
 
     if repos_to_clone:
-        for i, repo in enumerate(repos_to_clone):
+        for repo in sorted(repos_to_clone):
             try:
-                click.echo("\r\033[K", nl=False)
-                click.echo(
-                    f"Downloading repos ({i + 1}/{len(repos_to_clone)}): {repo}",
-                    nl=False,
-                )
                 subprocess.run(
                     [
                         "git",
@@ -60,53 +37,49 @@ def download_repos(backup_dir, username, pat=""):
                         f"{backup_dir}/{repo}",
                     ],
                     check=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
                 )
             except subprocess.CalledProcessError:
-                click.echo("CalledProcessError")
+                click.echo(click.style(f"Failed to clone {repo}.", fg="red"))
                 repos_failed_to_clone.append(repo)
             else:
+                click.echo(click.style(f"Cloned {repo}.", fg="green"))
                 repos_cloned.append(repo)
-        click.echo()
 
-    return repos_cloned, repos_failed_to_clone
+    return len(repos_cloned), len(repos_to_clone)
 
 
-def update(backup_dir, lfs=False):
+def update_existing_repos(backup_dir, lfs=False):
     updated = []
     failed_to_update = []
-    to_update = os.listdir(backup_dir)
+    to_update = sorted(os.listdir(backup_dir))
 
     for i, repo in enumerate(to_update):
         repo_path = os.path.join(backup_dir, repo)
 
         try:
-            click.echo("\r\033[K", nl=False)
-            click.echo(f"Updating repos ({i + 1}/{len(to_update)}): {repo}", nl=False)
+            subprocess.run(["git", "fetch", "--verbose"], cwd=repo_path, check=True)
 
-            subprocess.run(
-                ["git", "fetch"],
-                cwd=repo_path,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            if lfs:
+            if lfs and utils.git_lfs_installed():
                 subprocess.run(
-                    ["git", "lfs", "fetch", "--all"],
+                    ["git", "lfs", "fetch", "--all", "--verbose"],
                     cwd=repo_path,
                     check=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
                 )
-        except:
+            elif lfs:
+                click.echo(
+                    click.style(
+                        f"ERROR: Unable to fetch LFS files because LFS was not installed.",
+                        fg="red",
+                    )
+                )
+        except subprocess.CalledProcessError:
+            click.echo(click.style(f"Failed to update {repo}.", fg="red"))
             failed_to_update.append(repo)
         else:
+            click.echo(click.style(f"Updated {repo}.", fg="green"))
             updated.append(repo)
 
-    click.echo()
-    return updated, failed_to_update
+    return len(updated), len(to_update)
 
 
 def sync(backup_dir, username, pat, lfs=False):
@@ -118,21 +91,9 @@ def sync(backup_dir, username, pat, lfs=False):
             )
         )
 
-    cloned, failed_to_clone = download_repos(backup_dir, username, pat)
-    updated, failed_to_update = update(backup_dir, lfs)
+    downloaded, to_download = download_new_repos(backup_dir, username, pat)
+    updated, to_update = update_existing_repos(backup_dir, lfs)
 
-    if any((failed_to_clone, failed_to_update)):
-        click.echo("Syncing completed with errors:")
-        error_messages = []
-        if failed_to_clone:
-            error_messages.append(
-                f"ERROR: failed to clone {', '.join(failed_to_clone)}."
-            )
-        if failed_to_update:
-            error_messages.append(
-                f"ERROR: failed to update {', '.join(failed_to_update)}."
-            )
-
-        click.echo(click.style("\n".join(error_messages), fg="red"))
-    else:
-        click.echo("Syncing completed successfully.")
+    click.echo(
+        f"\nDownloaded {downloaded}/{to_download}, updated {updated}/{to_update}.",
+    )

@@ -1,5 +1,6 @@
 import requests
 import sys
+import subprocess
 
 
 def get_all_github_repos(pat):
@@ -62,3 +63,16 @@ def get_public_github_repos(username):
         page += 1
 
     return repos
+
+
+def git_lfs_installed():
+    try:
+        subprocess.run(
+            ["git", "lfs", "version"],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
