@@ -61,7 +61,12 @@ def update_existing_repos(backup_dir, lfs=False):
 
             if lfs and utils.git_lfs_installed():
                 subprocess.run(
-                    ["git", "lfs", "fetch", "--all", "--verbose"],
+                    ["git", "lfs", "fetch", "--all"],
+                    cwd=repo_path,
+                    check=True,
+                )
+                subprocess.run(
+                    ["git", "lfs", "ls-files", "--all"],
                     cwd=repo_path,
                     check=True,
                 )
