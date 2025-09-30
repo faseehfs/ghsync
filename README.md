@@ -16,17 +16,19 @@ This guides you through setup and saves your settings in `config.json` in the cu
 
 ```json
 {
-    "username": "faseehfs",
+    "username": "",
     "pat": "",
-    "backup_path": "backup",
-    "lfs": false
+    "backup_path": "",
+    "lfs": true,
+    "ignored_repos": ["repo-1", "repo-2"]
 }
 ```
 
 -   `username`: Your GitHub username.
--   `pat`: Personal Access Token (optional, needed only if private repos require it).
--   `backup_path`: Folder for storing your repositories (default: `backup`).
--   `lfs`: Set to `true` if you want Git LFS files; default is `false`.
+-   `pat`: Personal Access Token (optional; required only for syncing private repos).
+-   `backup_path`: Folder where your repositories will be stored (default: `backup`).
+-   `lfs`: Set to `true` to include Git LFS files; default is `false`.
+-   `ignored_repos`: List the names of repos to ignore, or leave empty to sync all.
 
 ### 2. Sync Repositories
 
