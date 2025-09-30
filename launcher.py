@@ -22,6 +22,7 @@ def sync_command():
         configuration["username"],
         configuration["pat"],
         configuration["lfs"],
+        configuration["ignored_repos"],
     )
 
 

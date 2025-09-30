@@ -1,7 +1,6 @@
 import click
 import os
 import json
-import sys
 
 from getpass import getpass
 
@@ -23,6 +22,9 @@ def config():
         .strip()
         .lower()
         == "y",
+        "ignored_repos": input(
+            "Enter the repository names you want to ignore (separate with spaces): "
+        ).split(),
     }
 
     if configuration["backup_path"] == "" or configuration["backup_path"].isspace():

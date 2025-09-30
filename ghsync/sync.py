@@ -4,7 +4,7 @@ import os
 from . import utils
 
 
-def download_new_repos(backup_dir, username, pat=""):
+def download_new_repos(backup_dir, username, pat="", ignored_repos=[]):
     """
     Downloads the repositories that have not been downloaded yet.
     """
@@ -26,7 +26,17 @@ def download_new_repos(backup_dir, username, pat=""):
     repos_cloned, repos_failed_to_clone = [], []
 
     if repos_to_clone:
-        for repo in sorted(repos_to_clone):
+        for i, repo in enumerate(sorted(repos_to_clone)):
+
+            if repo in ignored_repos:
+                click.echo(click.style(f"Ignored {repo}.", fg="yellow"))
+                continue
+
+            click.echo(
+                click.style(
+                    f"Cloning repo ({i}/{len(repos_to_clone)}): {repo}.", fg="blue"
+                )
+            )
             try:
                 subprocess.run(
                     [
@@ -42,7 +52,6 @@ def download_new_repos(backup_dir, username, pat=""):
                 click.echo(click.style(f"Failed to clone {repo}.", fg="red"))
                 repos_failed_to_clone.append(repo)
             else:
-                click.echo(click.style(f"Cloned {repo}.", fg="green"))
                 repos_cloned.append(repo)
 
     return len(repos_cloned), len(repos_to_clone)
@@ -55,6 +64,10 @@ def update_existing_repos(backup_dir, lfs=False):
 
     for i, repo in enumerate(to_update):
         repo_path = os.path.join(backup_dir, repo)
+
+        click.echo(
+            click.style(f"Updating repo ({i}/{len(to_update)}): {repo}.", fg="blue")
+        )
 
         try:
             subprocess.run(["git", "fetch", "--verbose"], cwd=repo_path, check=True)
@@ -81,13 +94,12 @@ def update_existing_repos(backup_dir, lfs=False):
             click.echo(click.style(f"Failed to update {repo}.", fg="red"))
             failed_to_update.append(repo)
         else:
-            click.echo(click.style(f"Updated {repo}.", fg="green"))
             updated.append(repo)
 
     return len(updated), len(to_update)
 
 
-def sync(backup_dir, username, pat, lfs=False):
+def sync(backup_dir, username, pat, lfs=False, ignored_repos=[]):
     if not lfs:
         click.echo(
             click.style(
@@ -96,9 +108,14 @@ def sync(backup_dir, username, pat, lfs=False):
             )
         )
 
-    downloaded, to_download = download_new_repos(backup_dir, username, pat)
+    downloaded, to_download = download_new_repos(
+        backup_dir, username, pat, ignored_repos
+    )
     updated, to_update = update_existing_repos(backup_dir, lfs)
 
     click.echo(
-        f"\nDownloaded {downloaded}/{to_download}, updated {updated}/{to_update}.",
+        click.style(
+            f"\nDownloaded {downloaded}, ignored {len(ignored_repos)}, failed to download {to_download - downloaded}, updated {updated}/{to_update}.",
+            fg="green",
+        )
     )
