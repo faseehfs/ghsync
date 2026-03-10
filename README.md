@@ -51,10 +51,10 @@ ghsync sync
 
 ## FAQs
 
-### What if I leave the `PAT` configuration empty?
+**What if I leave the `PAT` configuration empty?**
 
 All of your public repositories will be synced normally. Syncing private repositories require a `PAT` with the permission to read them.
 
-## Will I be able to work on the synced repositories?
+**Will I be able to work on the synced repositories?**
 
 No. The app uses `git clone --mirror` to download the repositories, so there will not be a working directory.
