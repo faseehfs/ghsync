@@ -1,8 +1,8 @@
 import click
 
-from ghsync import config
-from ghsync.sync import sync
-from ghsync.backup import backup
+from src import config
+from src.sync import sync
+from src.backup import backup
 
 
 @click.group()
