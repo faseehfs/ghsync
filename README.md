@@ -2,6 +2,9 @@
 
 A straightforward Python CLI tool to sync your GitHub repositories to your local machine.
 
+> [!WARNING]
+> This tool is deprecated. We now recommend [ghsync-gui](https://github.com/effessdev/ghsync-gui/).
+
 ## Usage
 
 ### 1. Configure
